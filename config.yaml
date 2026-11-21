@@ -1,0 +1,12 @@
+data: data
+size: 256
+base_channels: 24
+epochs: 20
+batch_size: 4
+learning_rate: 0.001
+seed: 42
+patience: 5
+interaction_steps: 2
+loss: BCEWithLogits + soft Dice loss
+optimizer: AdamW
+split: train 70%, validation 15%, test 15%, fixed seed

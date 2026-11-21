@@ -1,0 +1,20 @@
+# Python environments and generated caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Downloaded source data is not redistributable
+data/MontgomerySet/
+sample_uploads/*.jpg
+sample_uploads/*reference_mask.png
+assets/source_xray.png
+
+# Generated experiment intermediates and machine-specific files
+checkpoints/latest.pt
+tmp/
+NVIDIA Corporation/
+*.inspect.ndjson
+results/presentation-preview/
+results/predictions/validation.png
