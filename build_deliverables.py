@@ -149,28 +149,30 @@ def create_pdf():
     styles=getSampleStyleSheet()
     styles.add(ParagraphStyle(name='CoverTitle',parent=styles['Title'],fontName='Helvetica-Bold',fontSize=27,leading=33,textColor=navy,alignment=TA_LEFT,spaceAfter=12))
     styles.add(ParagraphStyle(name='CoverSub',parent=styles['BodyText'],fontName='Helvetica',fontSize=13,leading=19,textColor=muted,spaceAfter=10))
+    styles.add(ParagraphStyle(name='CoverAuthor',parent=styles['BodyText'],fontName='Helvetica-Bold',fontSize=13,leading=18,textColor=navy,spaceAfter=4))
     styles.add(ParagraphStyle(name='Section',parent=styles['Heading1'],fontName='Helvetica-Bold',fontSize=15,leading=19,textColor=navy,spaceBefore=5,spaceAfter=7,keepWithNext=True))
     styles.add(ParagraphStyle(name='BodyClean',parent=styles['BodyText'],fontName='Helvetica',fontSize=9.4,leading=14,textColor=ink,spaceAfter=5))
     styles.add(ParagraphStyle(name='Caption',parent=styles['BodyText'],fontName='Helvetica',fontSize=8,leading=11,textColor=muted,spaceAfter=4))
-    styles.add(ParagraphStyle(name='Callout',parent=styles['BodyText'],fontName='Helvetica-Bold',fontSize=10,leading=15,textColor=navy,spaceAfter=0))
-    doc=SimpleDocTemplate(str(out),pagesize=A4,rightMargin=21*mm,leftMargin=21*mm,topMargin=23*mm,bottomMargin=21*mm,title='Interactive Medical Image Segmentation with Minimal User Input',author='KADEMANE NISCHAY VENKATESH')
+    doc=SimpleDocTemplate(str(out),pagesize=A4,rightMargin=21*mm,leftMargin=21*mm,topMargin=23*mm,bottomMargin=21*mm,title='Interactive Medical Image Segmentation with Minimal User Input',author='KADEMANE NISCHAY VENKATESH',subject='CAI3400 Image Analysis')
     def esc(s):
         # Helvetica's built-in encoding drops several math/symbol glyphs in Poppler.
         s=s.translate(str.maketrans({'→':'->','×':'x','ε':'eps','Σ':'sum','−':'-','⁻':'-','³':'3','σ':'sigma','·':' / ','²':'^2','ₜ':'t','₋':'-','₁':'1','₀':'0','ₙ':'n'}))
         return s.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;').replace('\n','<br/>')
     story=[]
-    story += [Spacer(1,38*mm),Paragraph('MEDICAL AI  /  PROJECT REPORT',ParagraphStyle('CoverLabel',parent=styles['Caption'],fontName='Helvetica-Bold',fontSize=9,textColor=teal,spaceAfter=9)),Paragraph('Interactive Medical Image Segmentation with Minimal User Input',styles['CoverTitle']),Paragraph('A click-guided U-Net workflow for lung-field masks',styles['CoverSub']),Spacer(1,19*mm)]
-    cover_meta=Table([[Paragraph('<b>AUTHOR</b><br/>KADEMANE NISCHAY VENKATESH<br/><br/><b>ROLL NUMBER</b><br/>20241CAI0059',styles['BodyClean']),Paragraph('<b>RESEARCH AREA</b><br/>Neural Networks / Deep Learning / Medical Image Processing<br/><br/><b>REPORT TYPE</b><br/>Experimental project report',styles['BodyClean'])]],colWidths=[68*mm,84*mm])
-    cover_meta.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),pale),('BOX',(0,0),(-1,-1),.7,line),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),12),('RIGHTPADDING',(0,0),(-1,-1),12),('TOPPADDING',(0,0),(-1,-1),12),('BOTTOMPADDING',(0,0),(-1,-1),12)]))
-    story += [cover_meta,Spacer(1,25*mm)]
-    status=Table([[Paragraph('IMPLEMENTATION STATUS',ParagraphStyle('StatusLabel',parent=styles['Caption'],fontName='Helvetica-Bold',textColor=teal)),Paragraph('Model trained and evaluated on the NLM Montgomery set. Results are exploratory; dataset and split limitations are documented.',styles['Callout'])]],colWidths=[38*mm,114*mm])
-    status.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),pale),('BOX',(0,0),(-1,-1),.8,line),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('LEFTPADDING',(0,0),(-1,-1),12),('RIGHTPADDING',(0,0),(-1,-1),12),('TOPPADDING',(0,0),(-1,-1),12),('BOTTOMPADDING',(0,0),(-1,-1),12)]))
-    story += [status,Spacer(1,8*mm),Paragraph('Research prototype - Not for clinical use',styles['Caption']),PageBreak()]
-    # Abstract appears as front matter; the main body follows a research-paper structure.
+    story += [Spacer(1,43*mm),Paragraph('CAI3400  /  IMAGE ANALYSIS',ParagraphStyle('CoverLabel',parent=styles['Caption'],fontName='Helvetica-Bold',fontSize=10,textColor=teal,spaceAfter=12)),Paragraph('Interactive Medical Image Segmentation with Minimal User Input',styles['CoverTitle']),Paragraph('Click-guided U-Net segmentation of lung fields in chest radiographs',styles['CoverSub']),Spacer(1,23*mm),Paragraph('KADEMANE NISCHAY VENKATESH',styles['CoverAuthor']),Paragraph('Roll Number: 20241CAI0059',styles['BodyClean']),Paragraph('Subject: CAI3400 Image Analysis',styles['BodyClean']),PageBreak()]
+    # Abstract appears as front matter, followed by a project-specific introduction.
     abstract_title,abstract_body=SECTIONS[1]
     story.append(Paragraph('Abstract',styles['Section']))
     story.append(Paragraph(esc(abstract_body),styles['BodyClean']))
     story.append(Paragraph('<b>Keywords:</b> interactive segmentation; chest radiography; U-Net; click guidance; lung-field masks',styles['Caption']))
+    story.append(PageBreak())
+    story.append(Paragraph('Introduction',styles['Section']))
+    story.append(Paragraph(esc('This project implements lung-field segmentation for chest radiographs. A compact U-Net produces an initial mask, then uses point corrections and its previous prediction to refine the result. The work focuses on measuring how segmentation quality changes as the number of corrective clicks changes.'),styles['BodyClean']))
+    story.append(Paragraph('Project focus',ParagraphStyle('IntroFocus',parent=styles['Heading2'],fontName='Helvetica-Bold',fontSize=11.2,leading=14,textColor=blue,spaceBefore=8,spaceAfter=4,keepWithNext=True)))
+    story.append(Paragraph(esc('The model receives four channels: the grayscale X-ray, a positive-click map, a negative-click map, and the previous probability mask. During training, correction points are simulated from the current false-negative or false-positive regions. In the Streamlit application, the user chooses whether to add a missed lung area or remove an incorrectly included area, then clicks the image to update the prediction.'),styles['BodyClean']))
+    story.append(Paragraph('Evaluation scope',ParagraphStyle('IntroScope',parent=styles['Heading2'],fontName='Helvetica-Bold',fontSize=11.2,leading=14,textColor=blue,spaceBefore=8,spaceAfter=4,keepWithNext=True)))
+    story.append(Paragraph(esc('The experiment uses the NLM Montgomery County chest X-ray set and a deterministic image-pair split. It reports Dice and IoU for 0, 1, 3, 5, and 10 simulated clicks. Test-time clicks are selected using reference-mask errors, so this is an offline oracle-click experiment rather than a study with human annotators.'),styles['BodyClean']))
+    story.append(PageBreak())
     groups=[('1. Data and Dataset Preparation',[9,10]),('2. Model and Interaction Method',[11,12,13,14]),('3. Training and Evaluation Protocol',[15,16,17,18]),('4. Measured Results',[19,20]),('5. Application and Verification',[21,22]),('6. Limitations and Conclusion',[24,26]),('References',[27])]
     for chapter, indices in groups:
         for position,idx in enumerate(indices):
@@ -225,7 +227,7 @@ def create_pdf():
         if doc.page>1:
             canvas.setFont('Helvetica-Bold',7.5); canvas.setFillColor(ink); canvas.drawString(21*mm,A4[1]-14*mm,'INTERACTIVE MEDICAL IMAGE SEGMENTATION')
         canvas.setStrokeColor(line); canvas.setLineWidth(.7); canvas.line(21*mm,16*mm,189*mm,16*mm)
-        canvas.setFont('Helvetica',8); canvas.setFillColor(muted); canvas.drawString(21*mm,10*mm,'Research report | 2026'); canvas.drawRightString(189*mm,10*mm,str(doc.page)); canvas.restoreState()
+        canvas.setFont('Helvetica',8); canvas.setFillColor(muted); canvas.drawString(21*mm,10*mm,'CAI3400 Image Analysis | 2026'); canvas.drawRightString(189*mm,10*mm,str(doc.page)); canvas.restoreState()
     doc.build(story,onFirstPage=page,onLaterPages=page)
 
 if __name__=='__main__':
